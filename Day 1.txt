@@ -1,0 +1,312 @@
+https://github.com/Kasvi-Technologies/Spring-ThermoFisher-Dec-2017
+
+1. Create Product class with variables id, name, price and description
+with setter and getter methods
+
+2. write a test program with main method
+	a. create an instance of Product using new operator
+	b. set the values to product
+	c. display the values
+
+Spring Modules
+	Spring Core
+		AOP
+		DAO
+		ORM
+		Web
+		Context
+		Web MVC
+
+1. Your application should contain all spring jar files
+
+Spring Core  
+	completly depends on Dependency Injection
+	1. you need to explicitly create an object. You can simply 
+	register the objects with spring container so that
+	spring will automatically create an object
+	
+	2. You can register the beans to spring container using 
+	either one of the 
+	   xml based approach 
+		or
+	   Annotation based approach	
+	
+	<bean id="product" class="com.samples.bean.Product">
+		<property name="id" value="100"/>
+		<property name="name" value="using Spring"/>
+		<property name="price" value="10000"/>
+		<property name="description" value="Spring Based Prodcut Description"/>
+	</bean>
+	
+	3. BeanFactory interface is responsible to load all beans
+	which are registered in xml file
+	
+		XmlBeanFactory child class
+
+		ArrayList list = new ArrayList();
+		List list = new ArrayList(); // best prefered approach
+		
+	4. Excerise 1
+
+	Create product1 bean decalaration in same beans.xml file
+	In the same test program, get the bean product1 and display
+	the values
+	
+	Excercise 2
+	5. Create Address bean with id, address1, city with setter 
+	and getter methods
+	6. Create Employee bean with id, name, salary and address
+	with setter and getter objects	
+	Note: here address variable is of type Address
+
+	7. register both address and employee in beans.xml file
+
+	Note: need to use "ref" insteadof value while assigning address
+	<bean id="addr" class="....Address">
+		......
+	</bean>
+	<bean id="employee class=".....Employee">
+		....
+		<property name="address" ref="addr"/>
+	</bean>
+
+	8. Test program to get the employee bean.
+	print all employee details along with Address
+
+Bean Scopes
+	
+	singleton 
+		will specify that you can have only one instance 
+		throughout the JVM
+		
+		all beans by default singleton in Spring application
+		if you dot want singleton beansthen specify
+		scope="prototype"
+	
+	prototype
+	<bean id="addr1" class="com.samples.beans.Address" scope="prototype">
+	
+	request -> web application scope
+	session -> web application scope
+
+dependency-check 
+	
+	none  -> by default
+	simple
+	objects
+	all
+
+ApplicationContext -> is a child class of BeanFactory
+	-> it can load xml files from class path.
+
+Bean Life cycle methods
+
+	1. init-method and destroy-method methods in xml
+		init-method will be executed after all properties set
+		
+		destroy-method will be executed whene ever bean is 
+		removed from beanfactory/Application
+
+	2. InitializingBean and DisposableBean interfaces
+
+Auto Wiring
+
+	No need to register dependent object objects.
+	It will automatically inject the dependent objects
+
+	autowire=""
+
+	byName 
+		    Both uses setter based dependency injection
+	byType
+
+	constructor -> constructor based dependency injection
+
+	autodetect -> 
+	if parameterizeed constructor found, then it will use the 
+	constructor based autowiring
+	
+	other wise it will use byType
+
+Product.java
+ProductDAO -> Data Access Object -> 
+		it should contain only database logic
+
+		public void insertProduct(Product product) {}
+		public void deleteProduct(int productId) {}
+		public void updatProduct(Product product) {}
+		public List<Product> fetchProducts() {}
+
+ProductService -> Business Services
+
+		service class should contain only business logic
+		ProductDAO productDAO = new ProductDAO();
+		public void insertProduct(Product product) {
+			//BL..
+			productDAO .insertProduct(product);
+			
+		}
+		public void deleteProduct(int productId) {}
+		public void updatProduct(Product product) {}
+		public List<Product> fetchProducts() {}
+
+Annotations
+	You no need to register your classes in xml file
+
+	@Component   -> java beans
+	@Service  -> Service classes
+	@Repository -> DAO classes
+	@Controller -> Controller classes in web applications
+	@Autowired -> To autowire dependednt objects
+	@Required -> similar to dependency check
+	@PostConstruct -> similar to init-method or InitializingBean
+	@PreDestroy -> similar to destroy-method or DisposableBean
+			Spring AOP
+
+Aspect Oriented Programming
+	a. Cross cutting functionality is called as an Aspect
+	b. depends on the Modularization Design Pattern
+
+
+Modulariazation: diving your application into seperate logical parts
+
+With Out Modularization
+public void method1(){
+	SysOUt(""starting of the method..)
+	
+	if("Admin"){
+			//BL	
+	}
+	SysOUt("method completed..")
+
+}
+
+With Modulariazation
+
+public void logStartmethod1(){
+	SysOUt(""starting of the method..)
+}
+
+public void logendmethod1(){
+	SysOUt("method completed..")
+}
+
+public void securityCheckMethod(){
+	if("Admin".loggedinUSer){
+	}
+}
+
+
+public void method1(){
+	//BL 
+
+	//when evr exception occurs  
+}
+after completion of method1
+sysout.
+
+JoinPoint -> before calling the method, after completion of method
+		or exception occurs
+
+PointCut -> will specify at which join point which type of aspect
+		needs to be plugged in (injected)
+
+Aspect -> Cross cutting functionality
+
+Advice -> is another term  (alias) for Aspect 
+
+Target  -> original object, to which you are applying aspects
+
+proxy -> final object after applying aspects-> visually you cant see this object
+     this object will be created by spring container on the fly 
+
+
+
+Excercide
+
+1. Create AfterLoggingAspect 
+2. it should implements AfterReturningAdvice
+3. override the un implemented method and write some logic
+4. register AfterLoggingAspect in beans.xml
+5. add this bean in interceptornames for proxy
+<bean id="productServiceBeforeProxy"
+		class="org.springframework.aop.framework.ProxyFactoryBean">		
+		<property name="target" ref="productService"/>
+		<property name="interceptorNames">
+			<list>
+				<value>beforeLoggingAspect</value>
+				<value>afterLoggingAspect</value>
+			</list>
+		</property>
+	</bean>
+
+
+1. public class ProductExceptionAspect implements ThrowsAdvice{
+	
+	public void afterThrowing(Exception e) throws Exception{
+		System.out.println(e.getMessage() + " from ProductExceptionAspect:");
+	}
+
+}
+
+2. write the exception method in Product Service class
+
+public void sampleExceptionMethod () throws Exception{
+		throw new Exception("product not found");
+	}
+3. register aspect in xml
+4. add this aspect to the proxy
+5. call this exception method also in test program	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+
+
+	
+	
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
